@@ -7,7 +7,7 @@ public class Factory {
 
     public static Graph graph(String label) {
         Graph g = new Graph();
-        g.addAtrribute("label", label);
+        g.setLabel(label);
         return g;
     }
 
@@ -17,7 +17,7 @@ public class Factory {
 
     public static Graph diGraph(String label) {
         Graph g = new Graph(true, false);
-        g.addAtrribute("label", label);
+        g.setLabel(label);
         return g;
     }
 
@@ -27,15 +27,19 @@ public class Factory {
 
     public static Graph subGraph(String label) {
         Graph g = new Graph(false, true);
-        g.addAtrribute("label", label);
+        g.setLabel(label);
         return g;
     }
 
-    public static Node node(String label) {
-        return new Node(label);
+    public static Node node(String name) {
+        return new Node(name);
     }
 
     public static Link link(Node from, Node to) {
         return new Link(from, to);
     } 
+
+    public static Attribute atrrib(String name, String value) {
+        return new Attribute(name, value);
+    }
 }
