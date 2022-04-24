@@ -12,6 +12,9 @@ public class Graphviz {
     private String tempDir;
     private String executablePath;
 
+    public static final String DEFAULT_FILE_TYPE = "png";
+    public static final int DEFAULT_DPI = 300;
+
     public Graphviz() {
         this("/usr/bin/dot", "/tmp");
     }
@@ -48,14 +51,14 @@ public class Graphviz {
         source = new StringBuilder();
     }
 
-    public int writeGraphToFile(String filePath) {
+    public int writeGraphToFile(String fileName, String fileType, int dpi) {
         try {
-            File imageFile = new File(filePath);
+            File imageFile = new File(fileName + "." + fileType);
             imageFile.createNewFile();
             File sourceFile = writeSourceToTempFile();
 
             Runtime runtime = Runtime.getRuntime();
-            String[] cmd = { executablePath, "-Tpng", sourceFile.getAbsolutePath(), "-o", imageFile.getAbsolutePath() };
+            String[] cmd = { executablePath, "-T"+fileType, "-Gdpi="+dpi, sourceFile.getAbsolutePath(), "-o", imageFile.getAbsolutePath() };
             Process p = runtime.exec(cmd);
             return p.waitFor();
         } 

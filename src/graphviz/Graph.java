@@ -165,9 +165,21 @@ public class Graph {
         System.out.println(sb.toString());
     }
 
-    public int save(String file) {
+    public int save(String fileName) {
+        return save(fileName, Graphviz.DEFAULT_FILE_TYPE, Graphviz.DEFAULT_DPI);   
+    }
+
+    public int save(String fileName, String fileType) {
+        return save(fileName, fileType, Graphviz.DEFAULT_DPI);
+    }
+
+    public int save(String fileName, int dpi) {
+        return save(fileName, Graphviz.DEFAULT_FILE_TYPE, dpi);
+    }
+
+    public int save(String fileName, String fileType, int dpi) {
         pack();
-        int code = graphviz.writeGraphToFile(file); 
+        int code = graphviz.writeGraphToFile(fileName, fileType, dpi); 
         
         if (code == 0)
             System.out.println("Saved successfully.");
