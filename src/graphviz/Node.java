@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
-    String name;
-    List<Attribute> attributes;
+    public String name;
+
+    private List<Attribute> attributes;
 
     public Node(String name) {
         this.name = name;
@@ -18,6 +19,18 @@ public class Node {
 
     public void addAtrribute(String name, String value) {
         attributes.add(new Attribute(name, value));
+    }
+
+    public void setColor(String color) {
+        addAtrribute("color", color);
+    }
+
+    public void setFillColor(String color) {
+        addAtrribute("fillcolor", color);
+    }
+
+    public void setLabel(String label) {
+        addAtrribute("label", label);
     }
 
     @Override

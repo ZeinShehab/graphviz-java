@@ -9,11 +9,11 @@ import java.util.Set;
 import graphviz.api.Graphviz;
 
 public class Graph {
-    Graphviz graphviz;
+    private Graphviz graphviz;
 
-    Set<Node> nodes;
-    List<Link> links;
-    List<Graph> subGraphs;
+    private Set<Node>   nodes;
+    private List<Link>  links;
+    private List<Graph> subGraphs;
 
     List<Attribute> attributes;
 
@@ -32,10 +32,10 @@ public class Graph {
     }
 
     public Graph(boolean directed, boolean subGraph) {
-        graphviz = new Graphviz();
-        nodes = new LinkedHashSet<>();
-        links = new ArrayList<>();
-        subGraphs = new ArrayList<>();
+        graphviz   = new Graphviz();
+        nodes      = new LinkedHashSet<>();
+        links      = new ArrayList<>();
+        subGraphs  = new ArrayList<>();
         attributes = new ArrayList<>();
 
         this.directed = directed;
@@ -108,6 +108,22 @@ public class Graph {
         this.subGraph = isSubGraph;
     }
 
+    public void setLabel(String label) {
+        addAtrribute("label", label);
+    }
+
+    public void setFontSize(int fontSize) {
+        addAtrribute("fontsize", fontSize+"");
+    }
+
+    public void setFontColor(String fontColor) {
+        addAtrribute("fontcolor", fontColor);
+    }
+
+    public void center(boolean center) {
+        addAtrribute("center", center+"");
+    }
+
     private void pack() {
         graphviz.clearGraph();
 
@@ -160,7 +176,8 @@ public class Graph {
         for (int i = 0; i < links.size() - 1; i++) {
             sb.append(links.get(i).toString(directed, false) + ", ");
         }
-        sb.append(links.get(links.size() - 1).toString(directed, false));
+        if (links.size() > 0)
+            sb.append(links.get(links.size() - 1).toString(directed, false));
         sb.append("]");
         System.out.println(sb.toString());
     }
