@@ -6,20 +6,44 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import graphviz.api.Graphviz;
+
 public class Graph {
     Graphviz graphviz;
 
     Set<Node> nodes;
     List<Link> links;
+    List<Graph> subGraphs;
+
+    List<Attribute> attributes;
 
     private boolean directed;
+    private boolean subGraph;
 
-    public Graph(boolean directed) {
+    private int clusterId;
+    private static int globalClusterId = 0;
+
+    public Graph() {
+        this(false, false);
+    }
+
+    public Graph(boolean subGraph) {
+        this(false, subGraph);
+    }
+
+    public Graph(boolean directed, boolean subGraph) {
         graphviz = new Graphviz();
         nodes = new LinkedHashSet<>();
         links = new ArrayList<>();
-        
+        subGraphs = new ArrayList<>();
+        attributes = new ArrayList<>();
+
         this.directed = directed;
+        this.subGraph = subGraph;
+
+        if (subGraph) {
+            clusterId = globalClusterId++;
+        }
     }
 
     public void addNode(Node node) {
@@ -55,17 +79,48 @@ public class Graph {
         addLink(node1, node2);
     }
 
+    public void addSubGraph(Graph subGraph) {
+        subGraph.setDirected(directed);
+        subGraphs.add(subGraph);
+    }
+
+    public void addAtrribute(Attribute attribute) {
+        attributes.add(attribute);
+    }
+
+    public void addAtrribute(String name, String value) {
+        attributes.add(new Attribute(name, value));
+    }
+
     public boolean isDirected() {
         return directed;
+    }
+
+    public boolean isSubGraph() {
+        return subGraph;
+    }
+
+    public void setDirected(boolean directed) {
+        this.directed = directed;
+    }
+
+    public void setSubGraph(boolean isSubGraph) {
+        this.subGraph = isSubGraph;
     }
 
     private void pack() {
         graphviz.clearGraph();
 
-        if (directed)
+        if (subGraph)
+            graphviz.startSubGraph(clusterId);
+        else if (directed)
             graphviz.startDigraph();
-        else 
+        else
             graphviz.startGraph();
+
+        for (Attribute attrib : attributes) {
+            graphviz.addln(attrib.toString());
+        }
 
         for (Node node : nodes) {
             graphviz.addln(node.toString());
@@ -75,6 +130,10 @@ public class Graph {
             graphviz.addln(link.toString(directed));
         }
 
+        for (Graph subGraph : subGraphs) {
+            graphviz.add(subGraph.getDotSource(), false);
+        }
+
         graphviz.endGraph();
     }
 
@@ -82,7 +141,7 @@ public class Graph {
         System.out.print("NODES: ");
 
         StringBuilder sb2 = new StringBuilder("[");
-        
+
         Iterator<Node> it = nodes.iterator();
         while (it.hasNext()) {
             String name = it.next().name;
@@ -91,7 +150,7 @@ public class Graph {
             if (it.hasNext()) {
                 sb2.append(", ");
             }
-        } 
+        }
         sb2.append("]");
         System.out.println(sb2.toString());
 
@@ -101,14 +160,20 @@ public class Graph {
         for (int i = 0; i < links.size() - 1; i++) {
             sb.append(links.get(i).toString(directed, false) + ", ");
         }
-        sb.append(links.get(links.size()-1).toString(directed, false));
+        sb.append(links.get(links.size() - 1).toString(directed, false));
         sb.append("]");
         System.out.println(sb.toString());
     }
 
     public int save(String file) {
         pack();
-        return graphviz.writeGraphToFile(file);
+        int code = graphviz.writeGraphToFile(file); 
+        
+        if (code == 0)
+            System.out.println("Saved successfully.");
+        else
+            System.out.println("Failed to save.");
+        return code;
     }
 
     public String getDotSource() {
