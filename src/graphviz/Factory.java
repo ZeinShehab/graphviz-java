@@ -61,6 +61,10 @@ public class Factory {
         return new Attribute(name, value);
     }
 
+    public static Graph graph(int[][] adjMat) {
+        return graph(adjMat, Node.letterLabels(adjMat.length));
+    }
+
     public static Graph graph(int[][] adjMat, String ... nodes) {
         Graph g = graph();
         fillGraphFromAdjMat(g, adjMat, nodes);
@@ -70,6 +74,10 @@ public class Factory {
 
     public static Graph graph(int[][] adjMat, Node[] nodes) {
         return graph(adjMat, nodesToLabels(nodes));
+    }
+
+    public static Graph diGraph(int[][] adjMat) {
+        return diGraph(adjMat, Node.letterLabels(adjMat.length));
     }
 
     public static Graph diGraph(int[][] adjMat, String ... nodes) {
@@ -101,7 +109,7 @@ public class Factory {
         int numNodes = nodes.length;
 
         for (int i = 0; i < adjMat.length; i++) {
-            for (int j = 0; j < (dir ? numNodes : i); j++) {
+            for (int j = 0; j < (dir ? numNodes : i+1); j++) {
                 if (adjMat[i][j] == 1) {
                     g.addLink(nodes[i], nodes[j]);
                 }

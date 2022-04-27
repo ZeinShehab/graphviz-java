@@ -37,4 +37,11 @@ public class Node {
     public String toString() {
         return attributes.size() != 0 ? name + " " + attributes.toString() : name;
     }
+
+    public static String[] letterLabels(int size) {
+        if (size > 26) 
+            throw new IllegalArgumentException("Max size for default label list is 26");
+        String s = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        return s.substring(0, size).split("");
+    }
 }
