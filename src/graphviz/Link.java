@@ -2,17 +2,34 @@ package graphviz;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Link {
     public Node from;
-    public Node to;
+    public Node[] to;
 
-    private List<Attribute> attributes;
+    protected List<Attribute> attributes;
+
+    private boolean isMultiLink;
 
     public Link(Node from, Node to) {
         this.from = from;
-        this.to   = to;
+        this.to = new Node[]{to};
         attributes = new ArrayList<>();
+        isMultiLink = false;
+    }
+
+    public Link(Node from, Node ... to) {
+        Objects.requireNonNull(to);
+
+        if (to.length == 0)
+            throw new IllegalArgumentException("Link must have atleast one target node");
+        
+        this.from = from;
+        this.to = to;
+        attributes = new ArrayList<>();
+
+        isMultiLink = to.length == 1 ? false : true;
     }
 
     public void addAtrribute(Attribute attribute) {
@@ -51,15 +68,29 @@ public class Link {
         return toString(true, false);
     }
 
-    public String toString(boolean directed) {
-        String arrow = directed ? "->" : "--";
-        String link = from.name + arrow + to.name;    
-        return attributes.size() != 0 ? link + " " + attributes.toString() : link;
+    private String targetList() {
+        StringBuilder sb = new StringBuilder("{");
+        for (int i = 0; i < to.length-1; i++) {
+            sb.append(to[i]);
+            sb.append(", ");
+        }
+        sb.append(to[to.length-1]);
+        sb.append("}");
+        return sb.toString();
     }
 
-    public String toString(boolean directed, boolean attributes) {
+    public String toString(boolean directed) {
+        return toString(directed, true);
+    }
+
+    public String toString(boolean directed, boolean showAttribs
+    ) {
         String arrow = directed ? "->" : "--";
-        String link = from.name + arrow + to.name;  
-        return attributes ? toString(directed) : link;
+        String link = from.name + " " + arrow + " ";
+        link += isMultiLink ? targetList() : to[0].name;
+        
+        if (showAttribs && attributes.size() != 0) 
+            return link + " " + attributes.toString();
+        return link;
     }
 }

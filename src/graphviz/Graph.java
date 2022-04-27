@@ -1,5 +1,8 @@
 package graphviz;
 
+import static graphviz.Factory.link;
+import static graphviz.Factory.node;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -37,7 +40,7 @@ public class Graph {
         links      = new ArrayList<>();
         subGraphs  = new ArrayList<>();
         attributes = new ArrayList<>();
-
+        
         this.directed = directed;
         this.subGraph = subGraph;
 
@@ -51,7 +54,7 @@ public class Graph {
     }
 
     public void addNode(String name) {
-        nodes.add(new Node(name));
+        nodes.add(node(name));
     }
 
     public void addLink(Link link) {
@@ -59,24 +62,19 @@ public class Graph {
     }
 
     public void addLink(Node from, Node to) {
-        links.add(new Link(from, to));
+        links.add(link(from, to));
     }
 
     public void addLink(String from, String to) {
-        Node node1 = null;
-        Node node2 = null;
+        addLink(link(from, to));
+    }
 
-        for (Node node : nodes) {
-            if (node.name.equals(from))
-                node1 = node;
-            if (node.name.equals(to))
-                node2 = node;
-        }
-        if (node1 == null)
-            node1 = new Node(from);
-        if (node2 == null)
-            node2 = new Node(to);
-        addLink(node1, node2);
+    public void addLink(Node from, Node ... to) {
+        links.add(link(from, to));
+    }
+
+    public void addLink(String from, String ... to) {
+        links.add(link(from, to));
     }
 
     public void addSubGraph(Graph subGraph) {
