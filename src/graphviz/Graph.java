@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import graphviz.api.Code;
 import graphviz.api.Graphviz;
 
 public class Graph extends AttributedObject {
@@ -173,26 +174,32 @@ public class Graph extends AttributedObject {
         System.out.println(sb.toString());
     }
 
-    public int save(String fileName) {
+    public Code save(String fileName) {
         return save(fileName, Graphviz.DEFAULT_FILE_TYPE, Graphviz.DEFAULT_DPI);   
     }
 
-    public int save(String fileName, String fileType) {
+    public Code save(String fileName, String fileType) {
         return save(fileName, fileType, Graphviz.DEFAULT_DPI);
     }
 
-    public int save(String fileName, int dpi) {
+    public Code save(String fileName, int dpi) {
         return save(fileName, Graphviz.DEFAULT_FILE_TYPE, dpi);
     }
 
-    public int save(String fileName, String fileType, int dpi) {
+    public Code save(String fileName, String fileType, int dpi) {
         pack();
-        int code = graphviz.writeGraphToFile(fileName, fileType, dpi); 
+        Code code = graphviz.writeGraphToFile(fileName, fileType, dpi); 
         
-        if (code == 0)
+        if (code == Code.OK)
             System.out.println("Saved successfully.");
+        else if (code == Code.SYNTAX_ERROR)
+            System.out.println("Failed to save. Syntax error in generated dot file.");
+        else if (code == Code.IO_ERROR)
+            System.out.println("Failed to save. Error in writing/reading to temporary files.");
+        else if (code == Code.PROCESS_INTERRUPTED)
+            System.out.println("Failed to save. The process was interrupted.");
         else
-            System.out.println("Failed to save.");
+            System.out.println("Unhandled return code: " + code);
         return code;
     }
 

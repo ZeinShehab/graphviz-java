@@ -51,7 +51,7 @@ public class Graphviz {
         source = new StringBuilder();
     }
 
-    public int writeGraphToFile(String fileName, String fileType, int dpi) {
+    public Code writeGraphToFile(String fileName, String fileType, int dpi) {
         try {
             File imageFile = new File(fileName + "." + fileType);
             imageFile.createNewFile();
@@ -60,15 +60,15 @@ public class Graphviz {
             Runtime runtime = Runtime.getRuntime();
             String[] cmd = { executablePath, "-T"+fileType, "-Gdpi="+dpi, sourceFile.getAbsolutePath(), "-o", imageFile.getAbsolutePath() };
             Process p = runtime.exec(cmd);
-            return p.waitFor();
+            return p.waitFor() == 0 ? Code.OK : Code.SYNTAX_ERROR;
         } 
         catch (IOException e) {
             e.printStackTrace();
-            return 1;
+            return Code.IO_ERROR;
         } 
         catch (InterruptedException e) {
             e.printStackTrace();
-            return 1;
+            return Code.PROCESS_INTERRUPTED;
         }
     }
 
