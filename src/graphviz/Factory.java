@@ -57,7 +57,15 @@ public class Factory {
         return link(node(from), nodes);
     }
 
-    public static Attribute atrrib(String name, String value) {
+    public static Path path(Node ... nodes) {
+        return new Path(nodes);
+    }
+
+    public static Path path(String ... nodes) {
+        return new Path(nodes);
+    }
+
+    public static Attribute atr(String name, String value) {
         return new Attribute(name, value);
     }
 
