@@ -1,11 +1,7 @@
 package graphviz;
 
-import static graphviz.Factory.atr;
-import static graphviz.Factory.link;
-import static graphviz.Factory.node;
-import static graphviz.Formatter.fmtAttrib;
-import static graphviz.Formatter.fmtLink;
-import static graphviz.Formatter.fmtNode;
+import static graphviz.Factory.*;
+import static graphviz.api.Formatter.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,6 +18,7 @@ public class Graph extends AttributedObject {
     private Set<Node>   nodes;
     private List<Link>  links;
     private List<Graph> subGraphs;
+    private List<Path>  paths;
 
     private boolean directed;
     private boolean subGraph;
@@ -42,6 +39,7 @@ public class Graph extends AttributedObject {
         nodes      = new LinkedHashSet<>();
         links      = new ArrayList<>();
         subGraphs  = new ArrayList<>();
+        paths      = new ArrayList<>();
         
         this.directed = directed;
         this.subGraph = subGraph;
@@ -60,11 +58,12 @@ public class Graph extends AttributedObject {
     }
 
     public void addLink(Link link) {
+        link.setDirected(directed);
         links.add(link);
     }
 
     public void addLink(Node from, Node to) {
-        links.add(link(from, to));
+        addLink(link(from, to));
     }
 
     public void addLink(String from, String to) {
@@ -72,16 +71,91 @@ public class Graph extends AttributedObject {
     }
 
     public void addLink(Node from, Node ... to) {
-        links.add(link(from, to));
+        addLink(link(from, to));
     }
 
     public void addLink(String from, String ... to) {
-        links.add(link(from, to));
+        addLink(link(from, to));
     }
 
     public void addSubGraph(Graph subGraph) {
         subGraph.setDirected(directed);
         subGraphs.add(subGraph);
+    }
+
+    public void addPath(Path path) {
+        path.setDirected(directed);
+        paths.add(path);
+    }
+
+    public void addPath(Node ... nodes) {
+        addPath(path(nodes));
+    }
+
+    public void addPath(String ... nodes) {
+        addPath(path(nodes));
+    }
+
+    public void highlightPath(Node ... nodes) {
+        highlightPath("red", path(nodes));
+    }
+
+    public void highlightPath(String ... nodes) {
+        highlightPath("red", path(nodes));
+    }
+
+    public void highlightPath(Path path) {
+        highlightPath("red", path);
+    }
+
+    public void highlightPath(String color, Path path) {
+        Link[] pathLinks = path.getLinks();
+        Link[] existingLinks = new Link[pathLinks.length];
+
+        for (int i = 0; i < pathLinks.length; i++) {
+            Link pathLink = pathLinks[i];
+            pathLink.setDirected(directed);
+            Link existing = getLink(pathLink);
+
+            if (existing != null) {
+                existingLinks[i] = existing;
+            }
+            else {
+                System.out.println("Failed to highligh path. Path doesn't exist!");
+                return;
+            }
+        }
+        for (Link link : existingLinks) {
+            link.setColor(color);
+            link.setPenWidth(2.5);
+        }
+    }
+
+    private Node getNode(Node node) {
+        for (Node n : nodes) 
+            if (Comparator.equals(n, node))
+                return n;
+        return null;
+    }
+
+    private Node getNode(String name) {
+        return getNode(node(name));
+    }
+
+    private Link getLink(Link link) {
+        for (Link l : links) {
+            if (Comparator.equals(l, link))
+                return l;
+        }
+        return null;
+    }
+
+    private Link getLink(Node from, Node ... to) {
+        return getLink(link(from, to));
+    }
+
+    private Link getLink(String from, String ... to) {
+        return getLink(link(from, to));
     }
 
     public boolean isDirected() {
@@ -136,6 +210,10 @@ public class Graph extends AttributedObject {
 
         for (Link link : links) {
             graphviz.addln(fmtLink(link, directed));
+        }
+
+        for (Path path : paths) {
+            graphviz.addln(fmtPath(path, directed));
         }
 
         for (Graph subGraph : subGraphs) {
