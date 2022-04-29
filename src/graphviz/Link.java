@@ -2,16 +2,20 @@ package graphviz;
 
 import java.util.Objects;
 
+import graphviz.api.Formatter;
+
 public class Link extends AttributedObject {
     public Node from;
     public Node[] to;
 
     private boolean isMultiLink;
+    private boolean directed;
 
     public Link(Node from, Node to) {
         this.from = from;
         this.to = new Node[]{to};
         isMultiLink = false;
+        directed = true;
     }
 
     public Link(Node from, Node ... to) {
@@ -24,10 +28,19 @@ public class Link extends AttributedObject {
         this.to = to;
 
         isMultiLink = to.length == 1 ? false : true;
+        directed = true;
     }
 
     public boolean isMultiLink() {
         return isMultiLink;
+    }
+
+    public boolean isDirected() {
+        return directed;
+    }
+
+    public void setDirected(boolean directed) {
+        this.directed = directed;
     }
 
     public void setLabel(String label) {
