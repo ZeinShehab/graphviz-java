@@ -1,5 +1,7 @@
 package graphviz;
 
+import graphviz.api.Formatter;
+
 public class Attribute {
     private final String name;
     private String value;

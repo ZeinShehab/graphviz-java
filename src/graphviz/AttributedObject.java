@@ -37,4 +37,9 @@ public class AttributedObject {
     public String valueOfAtr(String name) {
         return attributes.get(name);
     }
+
+    public Map<String, String> getAttributes() {
+        Map<String, String> map = new HashMap<>(attributes);
+        return map;
+    }
 }

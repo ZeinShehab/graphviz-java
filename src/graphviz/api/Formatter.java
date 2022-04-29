@@ -1,8 +1,9 @@
-package graphviz;
+package graphviz.api;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import graphviz.*;
 
 public class Formatter {
     public static String fmtNode(Node node) {
@@ -48,7 +49,7 @@ public class Formatter {
     }
 
     public static String fmtAttribMap(AttributedObject obj) {
-        return fmtAttribMap(obj.attributes);
+        return fmtAttribMap(obj.getAttributes());
     }
 
     private static String fmtLinkTargetList(Node[] nodes) {
@@ -59,6 +60,27 @@ public class Formatter {
         }
         sb.append(nodes[nodes.length-1]);
         sb.append("}");
+        return sb.toString();
+    }
+
+    public static String fmtPath(Path path, boolean directed) {
+        return fmtPath(path, directed, true);
+    }
+
+    public static String fmtPath(Path path, boolean directed, boolean showAttribs) {
+        Node[] nodes = path.getNodes();
+        StringBuilder sb = new StringBuilder();
+        
+        String arrow = directed ? "->" : "--";
+        for (int i = 0; i < nodes.length; i++) {
+            sb.append(nodes[i].toString());
+            if (i != nodes.length - 1)
+                sb.append(" " + arrow + " ");
+        }
+        if (showAttribs) {
+            sb.append(" ");
+            sb.append(fmtAttribMap(path));
+        }
         return sb.toString();
     }
 }
