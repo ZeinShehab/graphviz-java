@@ -1,9 +1,9 @@
 package graphviz.api;
 
-public enum Code {
+public enum StatusCode {
     OK,
-    SYNTAX_ERROR,
     IO_ERROR,
+    SYNTAX_ERROR,
+    INVALID_PATH,
     PROCESS_INTERRUPTED,
-
 }

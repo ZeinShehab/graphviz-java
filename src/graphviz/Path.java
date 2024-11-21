@@ -57,6 +57,6 @@ public class Path extends AttributedObject {
     }
 
     public String toString() {
-        return Formatter.fmtPath(this, directed, true);
+        return Formatter.fmtPath(this, directed, false);
     }
 }

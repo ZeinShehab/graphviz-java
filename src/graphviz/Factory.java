@@ -34,7 +34,9 @@ public class Factory {
     }
 
     public static Node node(String name) {
-        return new Node(name);
+        Node n = new Node(name);
+        n.addAtr("shape", "circle");
+        return n;
     }
 
     public static Link link(Node from, Node to) {

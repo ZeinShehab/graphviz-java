@@ -16,7 +16,7 @@ public class Graphviz {
     public static final int DEFAULT_DPI = 300;
 
     public Graphviz() {
-        this("/usr/bin/dot", "/tmp");
+        this("/opt/homebrew/bin/dot", "/tmp");
     }
 
     public Graphviz(String executablePath, String tempDir) {
@@ -51,7 +51,7 @@ public class Graphviz {
         source = new StringBuilder();
     }
 
-    public Code writeGraphToFile(String fileName, String fileType, int dpi) {
+    public StatusCode writeGraphToFile(String fileName, String fileType, int dpi) {
         try {
             File imageFile = new File(fileName + "." + fileType);
             imageFile.createNewFile();
@@ -60,32 +60,25 @@ public class Graphviz {
             Runtime runtime = Runtime.getRuntime();
             String[] cmd = { executablePath, "-T"+fileType, "-Gdpi="+dpi, sourceFile.getAbsolutePath(), "-o", imageFile.getAbsolutePath() };
             Process p = runtime.exec(cmd);
-            return p.waitFor() == 0 ? Code.OK : Code.SYNTAX_ERROR;
+            return p.waitFor() == 0 ? StatusCode.OK : StatusCode.SYNTAX_ERROR;
         } 
         catch (IOException e) {
             e.printStackTrace();
-            return Code.IO_ERROR;
+            return StatusCode.IO_ERROR;
         } 
         catch (InterruptedException e) {
             e.printStackTrace();
-            return Code.PROCESS_INTERRUPTED;
+            return StatusCode.PROCESS_INTERRUPTED;
         }
     }
 
-    private File writeSourceToTempFile() {
-        try {
-            File sourceFile = File.createTempFile("graph_", ".dot.tmp", new File(tempDir));
-            PrintStream writer = new PrintStream(sourceFile);
-            writer.print(source.toString());
-            writer.close();
+    private File writeSourceToTempFile() throws IOException {
+        File sourceFile = File.createTempFile("graph_", ".dot.tmp", new File(tempDir));
+        PrintStream writer = new PrintStream(sourceFile);
+        writer.print(source.toString());
+        writer.close();
 
-            return sourceFile;
-        } 
-        catch (IOException e) {
-            System.err.println("Failed to write source to temp file");
-            e.printStackTrace();
-        }
-        return null;
+        return sourceFile;
     }
 
     public void startDigraph() {

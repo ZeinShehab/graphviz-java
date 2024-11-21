@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import graphviz.api.Code;
+import graphviz.api.StatusCode;
 import graphviz.api.Graphviz;
 
 public class Graph extends AttributedObject {
@@ -35,7 +35,8 @@ public class Graph extends AttributedObject {
     }
 
     public Graph(boolean directed, boolean subGraph) {
-        graphviz   = new Graphviz();
+        // graphviz   = new Graphviz("dot", "C:/Users/zeins/AppData/Local/Temp");
+        graphviz   = new Graphviz("dot", "C:/Users/ZEINCH~1/AppData/Local/Temp");
         nodes      = new LinkedHashSet<>();
         links      = new ArrayList<>();
         subGraphs  = new ArrayList<>();
@@ -96,66 +97,52 @@ public class Graph extends AttributedObject {
         addPath(path(nodes));
     }
 
-    public void highlightPath(Node ... nodes) {
-        highlightPath("red", path(nodes));
+    public StatusCode highlightPath(Node ... nodes) {
+        return highlightPath("red", path(nodes));
     }
 
-    public void highlightPath(String ... nodes) {
-        highlightPath("red", path(nodes));
+    public StatusCode highlightPath(String ... nodes) {
+        return highlightPath("red", path(nodes));
     }
 
-    public void highlightPath(Path path) {
-        highlightPath("red", path);
+    public StatusCode highlightPath(Path path) {
+        return highlightPath("red", path);
     }
 
-    public void highlightPath(String color, Path path) {
+    public StatusCode highlightPath(String color, Path path) {
         Link[] pathLinks = path.getLinks();
-        Link[] existingLinks = new Link[pathLinks.length];
+        Link[] linksToHighlight = new Link[pathLinks.length];
 
         for (int i = 0; i < pathLinks.length; i++) {
             Link pathLink = pathLinks[i];
             pathLink.setDirected(directed);
-            Link existing = getLink(pathLink);
+            Link linkToHighlight = null;
 
-            if (existing != null) {
-                existingLinks[i] = existing;
+            for (Link link : links) {
+                if (Comparator.equals(link, pathLink)) {
+                    linkToHighlight = link;
+                    break;
+                }
+                // The link exists in the graph as part of a multi-link
+                if (pathLink.isSublink(link)) {
+                    linkToHighlight = pathLink;
+                    link.targetList.remove(pathLink.to);
+                    addLink(linkToHighlight);
+                    break;
+                }
             }
-            else {
-                System.out.println("Failed to highligh path. Path doesn't exist!");
-                return;
+            if (linkToHighlight == null) {
+                System.out.println("Failed to highlight path. Path doesn't exist!");
+                return StatusCode.INVALID_PATH;
             }
+
+            linksToHighlight[i] = linkToHighlight;
         }
-        for (Link link : existingLinks) {
+        for (Link link : linksToHighlight) {
             link.setColor(color);
             link.setPenWidth(2.5);
         }
-    }
-
-    private Node getNode(Node node) {
-        for (Node n : nodes) 
-            if (Comparator.equals(n, node))
-                return n;
-        return null;
-    }
-
-    private Node getNode(String name) {
-        return getNode(node(name));
-    }
-
-    private Link getLink(Link link) {
-        for (Link l : links) {
-            if (Comparator.equals(l, link))
-                return l;
-        }
-        return null;
-    }
-
-    private Link getLink(Node from, Node ... to) {
-        return getLink(link(from, to));
-    }
-
-    private Link getLink(String from, String ... to) {
-        return getLink(link(from, to));
+        return StatusCode.OK;
     }
 
     public boolean isDirected() {
@@ -252,32 +239,32 @@ public class Graph extends AttributedObject {
         System.out.println(sb.toString());
     }
 
-    public Code save(String fileName) {
+    public StatusCode save(String fileName) {
         return save(fileName, Graphviz.DEFAULT_FILE_TYPE, Graphviz.DEFAULT_DPI);   
     }
 
-    public Code save(String fileName, String fileType) {
+    public StatusCode save(String fileName, String fileType) {
         return save(fileName, fileType, Graphviz.DEFAULT_DPI);
     }
 
-    public Code save(String fileName, int dpi) {
+    public StatusCode save(String fileName, int dpi) {
         return save(fileName, Graphviz.DEFAULT_FILE_TYPE, dpi);
     }
 
-    public Code save(String fileName, String fileType, int dpi) {
+    public StatusCode save(String fileName, String fileType, int dpi) {
         pack();
-        Code code = graphviz.writeGraphToFile(fileName, fileType, dpi); 
+        StatusCode code = graphviz.writeGraphToFile(fileName, fileType, dpi); 
         
-        if (code == Code.OK)
+        if (code == StatusCode.OK)
             System.out.println("Saved successfully.");
-        else if (code == Code.SYNTAX_ERROR)
+        else if (code == StatusCode.SYNTAX_ERROR)
             System.out.println("Failed to save. Syntax error in generated dot file.");
-        else if (code == Code.IO_ERROR)
-            System.out.println("Failed to save. Error in writing/reading to temporary files.");
-        else if (code == Code.PROCESS_INTERRUPTED)
+        else if (code == StatusCode.IO_ERROR)
+            System.out.println("Failed to save. Error in reading/writing to temporary files.");
+        else if (code == StatusCode.PROCESS_INTERRUPTED)
             System.out.println("Failed to save. The process was interrupted.");
         else
-            System.out.println("Unhandled return code: " + code);
+            System.out.println("Unhandled exit code: " + code);
         return code;
     }
 

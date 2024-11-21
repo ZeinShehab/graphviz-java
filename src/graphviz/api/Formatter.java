@@ -2,6 +2,7 @@ package graphviz.api;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import graphviz.*;
 
@@ -21,7 +22,7 @@ public class Formatter {
     public static String fmtLink(Link link, boolean directed, boolean showAttribs) {
         String arrow = directed ? "->" : "--";
         String prefix  = link.from.name + " " + arrow  + " ";
-        prefix += link.isMultiLink() ? fmtLinkTargetList(link.to) : link.to[0].name;
+        prefix += link.isMultiLink() ? fmtLinkTargetList(link.targetList) : link.to.name;
 
         return showAttribs ? prefix + fmtAttribMap(link) : prefix;
     }
@@ -52,13 +53,16 @@ public class Formatter {
         return fmtAttribMap(obj.getAttributes());
     }
 
-    private static String fmtLinkTargetList(Node[] nodes) {
+    private static String fmtLinkTargetList(Set<Node> nodes) {
         StringBuilder sb = new StringBuilder("{");
-        for (int i = 0; i < nodes.length-1; i++) {
-            sb.append(nodes[i]);
-            sb.append(", ");
+        Iterator<Node> it = nodes.iterator();
+
+        while (it.hasNext()) {
+            sb.append(it.next());
+            if (it.hasNext()) {
+                sb.append(", ");
+            }
         }
-        sb.append(nodes[nodes.length-1]);
         sb.append("}");
         return sb.toString();
     }

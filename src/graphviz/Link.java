@@ -1,19 +1,25 @@
 package graphviz;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import graphviz.api.Formatter;
 
 public class Link extends AttributedObject {
     public Node from;
-    public Node[] to;
+    public Node to;
+
+    /** For multi-links only */
+    public Set<Node> targetList;
 
     private boolean isMultiLink;
     private boolean directed;
 
     public Link(Node from, Node to) {
         this.from = from;
-        this.to = new Node[]{to};
+        this.to   = to;
+
         isMultiLink = false;
         directed = true;
     }
@@ -25,9 +31,18 @@ public class Link extends AttributedObject {
             throw new IllegalArgumentException("Link must have atleast one target node");
         
         this.from = from;
-        this.to = to;
 
-        isMultiLink = to.length == 1 ? false : true;
+        if (to.length >= 2) {
+            this.targetList = new HashSet<>();
+            for (Node n : to)
+                this.targetList.add(n);
+            isMultiLink = true;
+        }
+        else {
+            this.to = to[0];
+            isMultiLink = false;
+        }
+                
         directed = true;
     }
 
@@ -38,6 +53,22 @@ public class Link extends AttributedObject {
     public boolean isDirected() {
         return directed;
     }
+
+    public boolean isSublink(Link other) {
+        if (!other.isMultiLink() && !this.isMultiLink())
+            return Comparator.equals(this, other);
+        
+        if (!Comparator.equals(from, other.from))
+            return false;
+
+        if (!other.isMultiLink() && this.isMultiLink())
+            return false;
+
+        if (other.isMultiLink() && !this.isMultiLink())
+            return other.targetList.contains(to);
+
+        return !other.targetList.containsAll(targetList);
+    } 
 
     public void setDirected(boolean directed) {
         this.directed = directed;
